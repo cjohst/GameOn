@@ -7,8 +7,11 @@
       "strict": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "allowImportingTsExtensions": true,
-      "noEmit": true
+      "noEmit": false,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "strictPropertyInitialization": false,
+      "outDir": "./dist"
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]
