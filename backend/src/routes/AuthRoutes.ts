@@ -12,7 +12,10 @@ authRouter.post("/register", protectEndpoint, handleRegister)
 authRouter.post("/logout", protectEndpoint, handleLogout)
 
 authRouter.get("/redirect", (req, res) => {
-    res.redirect(`intent://redirect?code=${req.query.code}#Intent;scheme=gameoncpen;package=com.example.gameon;end;`)
+    if (req.query.error) {
+        res.redirect(`intent://startup#Intent;scheme=gameoncpen;package=com.example.gameon;end;`)
+    } else 
+        res.redirect(`intent://redirect?code=${req.query.code}#Intent;scheme=gameoncpen;package=com.example.gameon;end;`)
 })
 
 export default authRouter;

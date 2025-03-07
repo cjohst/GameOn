@@ -19,6 +19,9 @@ export class User {
   @Column({ default: false })
   banned!: boolean;
 
+  @Column({ default: null })
+  avatar?: string;
+
   @OneToOne(() => Preferences, (preferences) => preferences.user)
   preferences!: Preferences;
 

@@ -33,12 +33,13 @@ import com.example.gameon.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownInput(
+fun <T> DropdownInput(
     label: String,
-    options: List<String>,
-    selectedOption: MutableState<String>,
-    leadingIcon: @Composable (() -> Unit)? = null,
+    options: List<T>,
+    selectedOption: MutableState<T?>,
     modifier: Modifier,
+    displayText: (T) -> String,
+    leadingIcon: ((T) -> @Composable (() -> Unit)?)? = null,
     onSelect: () -> Unit = { }
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -51,12 +52,9 @@ fun DropdownInput(
     ) {
         TextField(
             readOnly = true,
-            value = selectedOption.value,
+            value = selectedOption.value?.let { displayText(it) } ?: "",
             onValueChange = { },
-            label = { Text(
-                label,
-                fontFamily=fontFamily
-            ) },
+            label = { Text(label, fontFamily = fontFamily) },
             singleLine = false,
             textStyle = TextStyle(fontFamily = fontFamily),
             colors = TextFieldDefaults.colors(
@@ -65,46 +63,40 @@ fun DropdownInput(
                 unfocusedTrailingIconColor = White,
                 unfocusedContainerColor = BlueDark,
                 unfocusedIndicatorColor = BlueDark,
-                unfocusedPlaceholderColor = Color(0xFFAAAAAA),
+                unfocusedPlaceholderColor = Color(0xAAFFFFFF),
                 focusedTextColor = White,
                 focusedLabelColor = White,
                 focusedTrailingIconColor = White,
                 focusedContainerColor = BlueDark,
                 focusedIndicatorColor = White,
-                focusedPlaceholderColor = Color(0xFFCCCCCC),
+                focusedPlaceholderColor = Color(0xCCFFFFFF),
             ),
-            leadingIcon = if (selectedOption.value != "") leadingIcon else null,
+            leadingIcon = selectedOption.value?.let { leadingIcon?.invoke(it) },
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
         )
+
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            },
+            onDismissRequest = { expanded = false },
             modifier = modifier
                 .background(BlueDark)
                 .padding(horizontal = 2.dp)
                 .heightIn(max = 250.dp)
         ) {
             options.forEach { option ->
-                val textColor: Color
-                val bgColor: Color
-                if (selectedOption.value == option) {
-                    textColor = BlueLight
-                    bgColor = BlueDarker
-                } else {
-                    textColor = White
-                    bgColor = BlueDark
-                }
+                val optionText = displayText(option)
+                val selectedText = selectedOption.value?.let { displayText(it) }
+
+                val textColor = if (selectedText == optionText) BlueLight else White
+                val bgColor = if (selectedText == optionText) BlueDarker else BlueDark
+
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(optionText) },
                     onClick = {
                         selectedOption.value = option
                         onSelect()
@@ -118,7 +110,7 @@ fun DropdownInput(
                         disabledLeadingIconColor = Color.Transparent,
                         disabledTrailingIconColor = Color.Transparent
                     ),
-                    leadingIcon = leadingIcon,
+                    leadingIcon = leadingIcon?.invoke(option),
                     modifier = Modifier.background(bgColor)
                 )
             }

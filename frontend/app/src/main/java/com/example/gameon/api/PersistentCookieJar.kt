@@ -12,11 +12,11 @@ class PersistentCookieJar (private val context: Context) : CookieJar {
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         val cookieStrings = cookies.map { it.toString() }.toSet()
-        prefs.edit().putStringSet(url.host(), cookieStrings).apply()
+        prefs.edit().putStringSet(url.host, cookieStrings).apply()
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        val cookieStrings = prefs.getStringSet(url.host(), emptySet()) ?: return emptyList()
+        val cookieStrings = prefs.getStringSet(url.host, emptySet()) ?: return emptyList()
         return cookieStrings.map { Cookie.parse(url, it)!! }
     }
 

@@ -55,6 +55,7 @@ declare module 'express-session' {
       discord_refresh_token: string;
       discord_username?: string;
       discord_email?: string;
+      discord_avatar?: string,
       temp_session: boolean;
     };
   }

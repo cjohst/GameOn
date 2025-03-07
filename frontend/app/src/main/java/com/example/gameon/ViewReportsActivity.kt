@@ -28,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.example.gameon.api.methods.getReportById
 import com.example.gameon.api.methods.resolveReport
-import com.example.gameon.composables.Icon
+import com.example.gameon.classes.User
+import com.example.gameon.composables.Avatar
 import com.example.gameon.composables.Logo
 import com.example.gameon.composables.ReportButton
 import com.example.gameon.composables.ReportTitle
@@ -44,16 +45,16 @@ class ViewReportsActivity : ComponentActivity() {
         val width = 300.dp
 
         val groupName = mutableStateOf("")
-        val reporterUsername = mutableStateOf("")
-        val reportedUsername = mutableStateOf("")
+        val reporter = mutableStateOf<User?>(null)
+        val reportedUser = mutableStateOf<User?>(null)
         val reason = mutableStateOf("")
 
         lifecycleScope.launch {
             val report = getReportById(reportId, this@ViewReportsActivity)!!
 
             groupName.value = report.group!!.group_name
-            reporterUsername.value = report.reporter!!.username
-            reportedUsername.value = report.reported_user!!.username
+            reporter.value = report.reporter
+            reportedUser.value = report.reported_user
             reason.value = report.reason
         }
 
@@ -79,8 +80,8 @@ class ViewReportsActivity : ComponentActivity() {
                     )
                     ReportDetails(
                         groupName.value,
-                        reporterUsername.value,
-                        reportedUsername.value,
+                        reporter.value,
+                        reportedUser.value,
                         reason.value,
                         Modifier.width(width)
                     )
@@ -122,8 +123,8 @@ class ViewReportsActivity : ComponentActivity() {
 @Composable
 fun ReportDetails(
     groupName: String,
-    reporterUsername: String,
-    reportedUsername: String,
+    reporter: User?,
+    reportedUser: User?,
     reason: String,
     modifier: Modifier
 ) {
@@ -133,12 +134,26 @@ fun ReportDetails(
         InputReadable(
             groupName,"Group", modifier = modifier,
         )
-        InputReadable(
-            reporterUsername, "Reporter", { Icon() }, modifier
-        )
-        InputReadable(
-            reportedUsername, "Reported User", { Icon() }, modifier
-        )
+        if (reporter != null)
+            InputReadable(
+                reporter.username,
+                "Reporter",
+                { Avatar(
+                    reporter.discord_id,
+                    reporter.avatar,
+                ) },
+                modifier
+            )
+        if (reportedUser != null)
+            InputReadable(
+                reportedUser.username,
+                "Reported User",
+                { Avatar(
+                    reportedUser.discord_id,
+                    reportedUser.avatar,
+                ) },
+                modifier
+            )
         InputReadable(
             reason, "Reason", modifier = modifier.height(200.dp)
         )
@@ -202,8 +217,8 @@ fun ViewReportsPreview() {
             )
             ReportDetails(
                 "Sims Swapper",
-                "sanhal23",
-                "rubination",
+                User("1", "sanhal23", "email@dc.com", banned=false),
+                User("2", "rubination", "email@dc.com", banned=false),
                 "This person wasn't very nice to me.",
                 Modifier.width(width)
             )

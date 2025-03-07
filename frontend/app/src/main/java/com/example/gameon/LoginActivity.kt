@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.gameon.composables.LoginButton
@@ -25,7 +28,18 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val discordUrl = intent.getStringExtra("DiscordLoginUrl")!!
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(discordUrl))
+
+        val customTabsIntent = CustomTabsIntent.Builder()
+            .setDefaultColorSchemeParams(
+                CustomTabColorSchemeParams.Builder()
+                    .setToolbarColor(BlueDarker.toArgb())
+                    .build()
+            )
+            .setShowTitle(true)
+            .build()
+
+        // Ensures custom tabs intent finishes after redirect
+        customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
 
         setContent {
             Column (
@@ -37,7 +51,7 @@ class LoginActivity : ComponentActivity() {
             ){
                 Logo(true)
                 LoginButton {
-                    startActivity(browserIntent)
+                    customTabsIntent.launchUrl(this@LoginActivity, Uri.parse(discordUrl))
                     finish()
                 }
             }
